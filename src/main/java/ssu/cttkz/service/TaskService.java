@@ -5,8 +5,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ssu.cttkz.dto.TaskDto;
 import ssu.cttkz.model.Task;
-import ssu.cttkz.repository.JobTypeRepository;
-import ssu.cttkz.repository.StatusRepository;
 import ssu.cttkz.repository.TaskRepository;
 
 import java.util.ArrayList;
