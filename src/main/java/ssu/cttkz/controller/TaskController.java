@@ -1,8 +1,10 @@
 package ssu.cttkz.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ssu.cttkz.dto.TaskDto;
 import ssu.cttkz.model.Task;
 import ssu.cttkz.service.TaskService;
 
@@ -15,7 +17,8 @@ public class TaskController {
     private TaskService taskService;
 
     @GetMapping("/tasks")
-    public List<Task> getAllTasks() {
-        return taskService.getAllTasks();
+    public ResponseEntity<?> getAll() {
+        List<TaskDto> tasks = taskService.getAll();
+        return ResponseEntity.ok(tasks);
     }
 }

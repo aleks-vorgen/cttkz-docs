@@ -13,7 +13,7 @@ public class StatusService {
     @Autowired
     private StatusRepository statusRepository;
 
-    public List<Status> getAllStatuses() {
+    public List<Status> getAll() {
         return statusRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
     }
 

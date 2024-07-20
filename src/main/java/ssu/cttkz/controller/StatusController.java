@@ -15,8 +15,8 @@ public class StatusController {
     private StatusService statusService;
 
     @GetMapping("/statuses")
-    public ResponseEntity<?> getAllStatuses() {
-        List<Status> statuses = statusService.getAllStatuses();
+    public ResponseEntity<?> getAll() {
+        List<Status> statuses = statusService.getAll();
         return ResponseEntity.ok(statuses);
     }
 }
