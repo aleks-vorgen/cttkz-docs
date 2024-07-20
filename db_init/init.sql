@@ -17,6 +17,16 @@ CREATE TABLE job_types
     title varchar(100) UNIQUE NOT NULL
 );
 
+CREATE TABLE users
+(
+    id      text PRIMARY KEY,
+    name    text        NOT NULL,
+    userpic text        NOT NULL,
+    email   text        NOT NULL,
+    gender  varchar(10) NOT NULL,
+    locale  text        NOT NULL
+);
+
 CREATE TABLE statuses
 (
     id    serial PRIMARY KEY,
