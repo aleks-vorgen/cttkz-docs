@@ -11,6 +11,9 @@ DROP SEQUENCE IF EXISTS job_types_id_seq;
 DROP TABLE IF EXISTS statuses;
 DROP SEQUENCE IF EXISTS statuses_id_seq;
 
+DROP TABLE IF EXISTS users;
+DROP SEQUENCE IF EXISTS users_id_seq;
+
 CREATE TABLE job_types
 (
     id    serial PRIMARY KEY,
