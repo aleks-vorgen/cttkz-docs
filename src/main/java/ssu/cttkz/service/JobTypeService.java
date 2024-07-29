@@ -17,4 +17,8 @@ public class JobTypeService {
     public List<JobType> getAll() {
         return jobTypeRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
     }
+
+    public List<JobType> getAllWithTasks() {
+        return jobTypeRepository.findAllWithTasks();
+    }
 }
