@@ -8,15 +8,22 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import ssu.cttkz.authentication.JWT.JWTRequestFilter;
 
 import java.util.Collections;
 
 @Configuration
+@EnableWebSecurity
 public class WebSecurityConfig {
 
     private final ActiveDirectoryLdapAuthenticationProvider provider;
+    @Autowired
+    private JWTRequestFilter jwtRequestFilter;
 
     @Autowired
     public WebSecurityConfig(ActiveDirectoryLdapAuthenticationProvider provider) {
@@ -26,10 +33,13 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
-                        .anyRequest().fullyAuthenticated()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .formLogin(Customizer.withDefaults());
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

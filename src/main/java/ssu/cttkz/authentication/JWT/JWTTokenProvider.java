@@ -1,25 +1,21 @@
 package ssu.cttkz.authentication.JWT;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.ldap.userdetails.LdapUserDetails;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
-import java.security.Permission;
-import java.util.Base64;
+import javax.crypto.SecretKey;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JWTTokenProvider {
@@ -27,64 +23,58 @@ public class JWTTokenProvider {
     private String secret;
     @Value("${jwt.token.expired}")
     private Long expiration;
-    private final UserDetailsService userDetailsService;
-
-    @Autowired
-    public JWTTokenProvider(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
+    private SecretKey secretKey;
 
     @PostConstruct
-    protected void init() {
-        secret = Base64.getEncoder().encodeToString(secret.getBytes());
+    public void init() {
+        secretKey = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String createToken(String username, Permission permission) {
-        return Jwts.builder()
+    public String createToken(String username, Collection<? extends GrantedAuthority> authorities) {
+        List<String> roles = authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+        String jwt = Jwts.builder()
                 .subject(username)
+                .claim("Authorities", roles)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .signWith(secretKey)
                 .compact();
-    }
 
-    public Authentication getAuthentication(String token) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        String dn = "";
-        Collection<? extends GrantedAuthority> authorities = null;
+        System.out.println("createToken method returned: " + jwt); //TODO для теста
 
-        if (authentication.getPrincipal() instanceof LdapUserDetails userDetails) {
-            dn = userDetails.getDn(); // distinguished name (DN) пользователя
-            authorities = userDetails.getAuthorities(); // роли пользователя
-
-            // Вы можете получить дополнительные атрибуты в зависимости от конфигурации вашего LDAP
-        }
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-    }
-
-    public String getUsername(String token) {
-        return Jwts.parser().signingKey(secret).parseClaimsJws(token).getBody().getSubject();
-    }
-
-    public String resolveToken(HttpServletRequest req) {
-        String bearerToken = req.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer_")) {
-            return bearerToken.substring(7);
-        }
-        return null;
+        return jwt;
     }
 
     public boolean validateToken(String token) {
         try {
-            Jws<Claims> claims = Jwts.parser().key(secret).parseClaimsJws(token);
-            return !claims.getBody().getExpiration().before(new Date());
+            Jws<Claims> claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+            return !claims.getPayload().getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
-            throw new JwtAuthenticationException("JWT token is expired or invalid");
+
+            System.out.println("validateToken method thrown:\n" + e.getMessage()); //TODO для теста
+
+            throw new JwtException("JWT token is expired or invalid");
         }
     }
 
-    private String getPermissionName(Permission permission) {
-        return permission.getPermission();
+    public String getUsername(String token) {
+        return extractClaims(token).getSubject();
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities(String token) {
+        Claims claims = extractClaims(token);
+
+        List<String> authorities = claims.get("Authorities", List.class);
+
+
+        return authorities.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList()); //TODO вернуть String or Collection
+    }
+
+    private Claims extractClaims(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
     }
 }
