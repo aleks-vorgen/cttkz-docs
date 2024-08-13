@@ -40,7 +40,6 @@ public class TaskService {
                     task.getUpdateReason(),
                     task.getUpdateUser()
             ));
-            System.out.println(task);
         }
         return taskDtos;
     }

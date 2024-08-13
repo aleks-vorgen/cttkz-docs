@@ -15,8 +15,8 @@ public class JobTypeController {
     @Autowired
     private JobTypeService jobTypeService;
 
-    @GetMapping("/jobtypes?with_tasks")
-    public ResponseEntity<?> getAll(@RequestParam boolean with_tasks) {
+    @GetMapping("/jobtypes")
+    public ResponseEntity<?> getAll(@RequestParam(required = false) boolean with_tasks) {
         List<JobType> jobTypes = with_tasks ? jobTypeService.getAllWithTasks() : jobTypeService.getAll();
         return ResponseEntity.ok(jobTypes);
     }
