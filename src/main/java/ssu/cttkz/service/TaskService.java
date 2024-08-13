@@ -7,6 +7,8 @@ import ssu.cttkz.dto.TaskDto;
 import ssu.cttkz.model.Task;
 import ssu.cttkz.repository.TaskRepository;
 
+import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,17 +30,24 @@ public class TaskService {
                     task.getDepartment(),
                     task.getApplicationNumberOriginal(),
                     task.getJobType().getTitle(),
-                    task.getRegNumber(),
+                    format(task.getRegNumber(), true),
                     task.getExecutor(),
                     task.getComment(),
                     task.getStatus().getTitle(),
-                    task.getCreatedAt(),
+                    format(task.getCreatedAt(), false),
                     task.getCreateUser(),
-                    task.getUpdatedAt(),
+                    format(task.getUpdatedAt(), false),
                     task.getUpdateReason(),
                     task.getUpdateUser()
             ));
+            System.out.println(task);
         }
         return taskDtos;
+    }
+
+    private String format(Timestamp datetime, boolean withSec) {
+        return withSec ?
+                datetime.toLocalDateTime().format(DateTimeFormatter.ofPattern("ddMMyyyyHHmmss")):
+                datetime.toLocalDateTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
 }

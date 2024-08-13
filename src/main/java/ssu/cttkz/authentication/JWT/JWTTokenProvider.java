@@ -31,6 +31,8 @@ public class JWTTokenProvider {
     }
 
     public String createToken(String username, Collection<? extends GrantedAuthority> authorities) {
+
+        //Преобразование ролей в список строк для создания токена
         List<String> roles = authorities.stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
@@ -52,9 +54,6 @@ public class JWTTokenProvider {
             Jws<Claims> claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
             return !claims.getPayload().getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
-
-            System.out.println("validateToken method thrown:\n" + e.getMessage()); //TODO для теста
-
             throw new JwtException("JWT token is expired or invalid");
         }
     }
@@ -68,10 +67,10 @@ public class JWTTokenProvider {
 
         List<String> authorities = claims.get("Authorities", List.class);
 
-
+        //Преобразования списка строк ролей обратно в коллекцию GrantedAuthorities
         return authorities.stream()
                 .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList()); //TODO вернуть String or Collection
+                .collect(Collectors.toList());
     }
 
     private Claims extractClaims(String token) {

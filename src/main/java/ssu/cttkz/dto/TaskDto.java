@@ -3,8 +3,6 @@ package ssu.cttkz.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.sql.Timestamp;
-
 @Data
 @AllArgsConstructor
 public class TaskDto {
@@ -16,13 +14,13 @@ public class TaskDto {
     private String department; //TODO заменить на модель Department
     private String applicationNumberOriginal;
     private String jobType;
-    private Timestamp regNumber;
+    private String regNumber;
     private String executor; //TODO заменить на модель User
     private String comment;
     private String status;
-    private Timestamp createdAt;
+    private String createdAt;
     private String createUser; //TODO заменить на модель User
-    private Timestamp updatedAt;
+    private String updatedAt;
     private String updateReason;
     private String updateUser; //TODO заменить на модель User
 }
