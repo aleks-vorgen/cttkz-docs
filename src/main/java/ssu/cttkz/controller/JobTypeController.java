@@ -16,8 +16,8 @@ public class JobTypeController {
     private JobTypeService jobTypeService;
 
     @GetMapping("/jobtypes")
-    public ResponseEntity<?> getAll(@RequestParam(required = false) boolean with_tasks) {
-        List<JobType> jobTypes = with_tasks ? jobTypeService.getAllWithTasks() : jobTypeService.getAll();
+    public ResponseEntity<?> getAll(@RequestParam(required = false) boolean wt) {
+        List<JobType> jobTypes = wt ? jobTypeService.getAllWithTasks() : jobTypeService.getAll();
         return ResponseEntity.ok(jobTypes);
     }
 }

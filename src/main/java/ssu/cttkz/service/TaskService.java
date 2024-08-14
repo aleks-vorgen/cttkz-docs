@@ -3,7 +3,9 @@ package ssu.cttkz.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import ssu.cttkz.dto.TaskDto;
+import ssu.cttkz.dto.TaskRequest;
 import ssu.cttkz.model.Task;
 import ssu.cttkz.repository.TaskRepository;
 
@@ -42,6 +44,16 @@ public class TaskService {
             ));
         }
         return taskDtos;
+    }
+
+    public TaskDto save(@RequestBody TaskRequest data) {
+        Task task = new Task();
+        task.setInvNumber(data.getInvNumber());
+        task.setSerialNumber(data.getSerialNumber());
+        task.setTitle(data.getTitle());
+        task.setFullNameMVO(data.getFullNameMVO());
+
+        //return task;
     }
 
     private String format(Timestamp datetime, boolean withSec) {

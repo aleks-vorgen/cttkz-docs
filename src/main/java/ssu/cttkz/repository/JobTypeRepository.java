@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface JobTypeRepository extends JpaRepository<JobType, Long> {
 
-    @Query("SELECT jt FROM JobType jt JOIN Task t ON t.jobType.id = jt.id")
+    @Query("SELECT jt, t FROM JobType jt LEFT JOIN Task t ON t.jobType.id = jt.id")
     List<JobType> findAllWithTasks();
 }
