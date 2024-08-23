@@ -1,12 +1,14 @@
 package ssu.cttkz.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+import ssu.cttkz.dto.TaskDto;
 
-import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tasks")
@@ -16,34 +18,34 @@ public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    @Column(name = "inv_number")
+    @Column(name = "inv_number", nullable = false)
     private String invNumber;
 
-    @Column(name = "serial_number")
+    @Column(name = "serial_number", nullable = false)
     private String serialNumber;
 
-    @Column(name = "title")
+    @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "fullname_mvo")
+    @Column(name = "fullname_mvo", nullable = false)
     private String fullNameMVO;
 
-    @Column(name = "department")
+    @Column(name = "department", nullable = false)
     private String department; //TODO заменить на модель Department
 
-    @Column(name = "application_number_original")
+    @Column(name = "application_number_original", nullable = false)
     private String applicationNumberOriginal;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "job_type_id")
+    @JoinColumn(name = "job_type_id", nullable = false)
     private JobType jobType;
 
     @Column(name = "reg_number")
-    private Timestamp regNumber;
+    private String regNumber;
 
-    @Column(name = "executor")
+    @Column(name = "executor", nullable = false)
     private String executor; //TODO заменить на модель User
 
     @Column(name = "comment")
@@ -54,13 +56,14 @@ public class Task {
     private Status status;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-    @Column(name = "create_user")
+    @Column(name = "create_user", nullable = false)
     private String createUser; //TODO заменить на модель User
 
     @Column(name = "updated_at")
-    private Timestamp updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(name = "update_reason")
     private String updateReason;
@@ -76,4 +79,17 @@ public class Task {
 
     @Column(name = "delete_user")
     private String deleteUser; //TODO заменить на модель User
+
+    public Task(TaskDto request, JobType jobType) {
+        this.invNumber = request.getInvNumber();
+        this.serialNumber = request.getSerialNumber();
+        this.title = request.getTitle();
+        this.fullNameMVO = request.getFullNameMVO();
+        department = request.getDepartment();
+        applicationNumberOriginal = request.getApplicationNumberOriginal();
+        this.jobType = jobType;
+        executor = request.getExecutor();
+        comment = request.getComment();
+        createUser = request.getCreateUser();
+    }
 }
