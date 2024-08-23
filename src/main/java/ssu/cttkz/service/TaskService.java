@@ -3,62 +3,49 @@ package ssu.cttkz.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import ssu.cttkz.dto.TaskDto;
-import ssu.cttkz.dto.TaskRequest;
+import ssu.cttkz.model.JobType;
 import ssu.cttkz.model.Task;
+import ssu.cttkz.repository.JobTypeRepository;
 import ssu.cttkz.repository.TaskRepository;
 
-import java.sql.Timestamp;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class TaskService {
     @Autowired
     private TaskRepository taskRepository;
+    @Autowired
+    private JobTypeRepository jobTypeRepository;
 
-    public List<TaskDto> getAll() {
-        List<Task> tasks = taskRepository.findAll(Sort.by(Sort.Direction.ASC, "createdAt"));
-        List<TaskDto> taskDtos = new ArrayList<>();
-        for (Task task : tasks) {
-            taskDtos.add(new TaskDto(
-                    task.getId(),
-                    task.getInvNumber(),
-                    task.getSerialNumber(),
-                    task.getTitle(),
-                    task.getFullNameMVO(),
-                    task.getDepartment(),
-                    task.getApplicationNumberOriginal(),
-                    task.getJobType().getTitle(),
-                    format(task.getRegNumber(), true),
-                    task.getExecutor(),
-                    task.getComment(),
-                    task.getStatus().getTitle(),
-                    format(task.getCreatedAt(), false),
-                    task.getCreateUser(),
-                    format(task.getUpdatedAt(), false),
-                    task.getUpdateReason(),
-                    task.getUpdateUser()
-            ));
-        }
-        return taskDtos;
+    public List<Task> getAll() {
+        return taskRepository.findAll(Sort.by(Sort.Direction.ASC, "createdAt"));
     }
 
-    public TaskDto save(@RequestBody TaskRequest data) {
+    public Task findById(Long id) {
+        return taskRepository.findById(id).orElse(null);
+    }
+
+    public Long save(TaskDto data) {
+        Task task = requestToTask(data);
+        return taskRepository.save(task).getId();
+    }
+
+    private Task requestToTask(TaskDto request) {
         Task task = new Task();
-        task.setInvNumber(data.getInvNumber());
-        task.setSerialNumber(data.getSerialNumber());
-        task.setTitle(data.getTitle());
-        task.setFullNameMVO(data.getFullNameMVO());
+        JobType jobType = jobTypeRepository.findById(Long.valueOf(request.getJobType())).orElse(null);
 
-        //return task;
-    }
+        task.setInvNumber(request.getInvNumber());
+        task.setSerialNumber(request.getSerialNumber());
+        task.setTitle(request.getTitle());
+        task.setFullNameMVO(request.getFullNameMVO());
+        task.setDepartment(request.getDepartment());
+        task.setApplicationNumberOriginal(request.getApplicationNumberOriginal());
+        task.setJobType(jobType);
+        task.setExecutor(request.getExecutor());
+        task.setComment(request.getComment());
+        task.setCreateUser(request.getCreateUser());
 
-    private String format(Timestamp datetime, boolean withSec) {
-        return withSec ?
-                datetime.toLocalDateTime().format(DateTimeFormatter.ofPattern("ddMMyyyyHHmmss")):
-                datetime.toLocalDateTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        return task;
     }
 }
