@@ -16,7 +16,7 @@ DROP SEQUENCE IF EXISTS users_id_seq;
 
 CREATE TABLE job_types
 (
-    id    serial PRIMARY KEY,
+    id    bigserial PRIMARY KEY,
     title varchar(100) UNIQUE NOT NULL
 );
 
@@ -32,32 +32,32 @@ CREATE TABLE users
 
 CREATE TABLE statuses
 (
-    id    serial PRIMARY KEY,
+    id    bigserial PRIMARY KEY,
     title varchar(100) UNIQUE NOT NULL
 );
 
 CREATE TABLE tasks
 (
-    id                          serial PRIMARY KEY,
-    inv_number                  varchar(20)         NOT NULL,                           --Инвентарник
-    serial_number               varchar(20)         NOT NULL,                           --Серийник
-    title                       text                NOT NULL,                           --Наименование товара
-    fullName_MVO                text                NOT NULL,                           --Изменится на FK к users
-    department                  text                NOT NULL,                           --Возможно изменится на FK к departments
-    application_number_original varchar(100) UNIQUE NOT NULL,                           --Номер служебки оригинальный (мб нужно отдельную таб.)
-    reg_number                  timestamp UNIQUE             DEFAULT CURRENT_TIMESTAMP, --Рег номер для поиска
-    executor                    text                NOT NULL,                           --Изменится на FK к users
-    comment                     text,                                                   --Комменртарий
-    job_type_id                 int                 NOT NULL,                           --FK на jobTypes (тип работы)
-    status_id                   int                 NOT NULL DEFAULT 1,                 --FK на statuses (статус задачи)
-    created_at                  timestamp                    DEFAULT CURRENT_TIMESTAMP, --Создано
-    create_user                 text                NOT NULL,                           --Кем создано
-    updated_at                  timestamp                    DEFAULT CURRENT_TIMESTAMP, --Отредактировано
-    update_reason               text,                                                   --Причина редактирования
-    update_user                 text,                                                   --Кем отредактировано
-    deleted_at                  timestamp,                                              --Удалено
-    delete_reason               text,                                                   --Причина удаления
-    delete_user                 text,                                                   --Кем удалено
+    id                          bigserial PRIMARY KEY,
+    inv_number                  text        NOT NULL, --Инвентарник
+    serial_number               text        NOT NULL, --Серийник
+    title                       text        NOT NULL, --Наименование товара
+    fullName_MVO                text        NOT NULL, --Изменится на FK к users
+    department                  text        NOT NULL, --Возможно изменится на FK к departments
+    application_number_original text UNIQUE NOT NULL, --Номер служебки оригинальный (мб нужно отдельную таб.)
+    reg_number                  text UNIQUE,          --Рег номер для поиска
+    executor                    text        NOT NULL, --Изменится на FK к users
+    comment                     text,                 --Комменртарий
+    job_type_id                 bigint      NOT NULL, --FK на jobTypes (тип работы)
+    status_id                   bigint,               --FK на statuses (статус задачи)
+    created_at                  timestamp(0),         --Создано
+    create_user                 text        NOT NULL, --Кем создано
+    updated_at                  timestamp(0),         --Отредактировано
+    update_reason               text,                 --Причина редактирования
+    update_user                 text,                 --Кем отредактировано
+    deleted_at                  timestamp(0),         --Удалено
+    delete_reason               text,                 --Причина удаления
+    delete_user                 text,                 --Кем удалено
     FOREIGN KEY (job_type_id) REFERENCES job_types (id),
     FOREIGN KEY (status_id) REFERENCES statuses (id)
     --FOREIGN KEY (create_user) REFERENCES users (id),
@@ -68,7 +68,8 @@ CREATE TABLE tasks
 CREATE FUNCTION tasks_before_insert() RETURNS trigger AS
 $tasks_before_insert$
 BEGIN
-    NEW.reg_number := CURRENT_TIMESTAMP;
+    NEW.reg_number := to_char(CURRENT_TIMESTAMP, 'DDMMYYYYHH24MISS');
+    NEW.status_id := 1;
     NEW.created_at := CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
