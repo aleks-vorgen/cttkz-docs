@@ -2,11 +2,13 @@ package ssu.cttkz.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class TaskDto {
-    private Integer id;
+    private Long id;
     private String invNumber;
     private String serialNumber;
     private String title;
