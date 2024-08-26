@@ -25,6 +25,7 @@ public class TaskController {
     public ResponseEntity<?> save(@RequestBody TaskDto task) {
         Long id = taskService.save(task);
         Task response = taskService.findById(id);
+        System.out.println(response);
         return ResponseEntity.ok(response);
     }
 }

@@ -5,10 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import ssu.cttkz.dto.TaskDto;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "tasks")
@@ -80,16 +82,14 @@ public class Task {
     @Column(name = "delete_user")
     private String deleteUser; //TODO заменить на модель User
 
-    public Task(TaskDto request, JobType jobType) {
-        this.invNumber = request.getInvNumber();
-        this.serialNumber = request.getSerialNumber();
-        this.title = request.getTitle();
-        this.fullNameMVO = request.getFullNameMVO();
-        department = request.getDepartment();
-        applicationNumberOriginal = request.getApplicationNumberOriginal();
-        this.jobType = jobType;
-        executor = request.getExecutor();
-        comment = request.getComment();
-        createUser = request.getCreateUser();
+    @PrePersist
+    protected void onCreate() {
+        this.regNumber = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("ddMMyyyyHHmmss"));
+        if (this.status == null) {
+            this.status = new Status();
+            this.status.setId(1L);
+        }
+        this.createdAt = LocalDateTime.now();
     }
 }
