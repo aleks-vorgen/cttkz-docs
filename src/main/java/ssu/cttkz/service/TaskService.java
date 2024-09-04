@@ -1,9 +1,11 @@
 package ssu.cttkz.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ssu.cttkz.dto.TaskDto;
+import ssu.cttkz.service.mapstruct.TaskMapper;
 import ssu.cttkz.model.JobType;
 import ssu.cttkz.model.Status;
 import ssu.cttkz.model.Task;
@@ -23,26 +25,41 @@ public class TaskService {
     private JobTypeRepository jobTypeRepository;
     @Autowired
     private StatusRepository statusRepository;
+    @Autowired
+    private TaskMapper taskMapper;
 
     public List<Task> getAll() {
         return taskRepository.findAll(Sort.by(Sort.Direction.ASC, "createdAt"));
     }
 
-    public Task findById(Long id) {
+    public Task save(TaskDto data) {
+        Task task = requestToTask(data);
+        Long id = taskRepository.saveAndFlush(task).getId();
+        System.out.println(taskRepository.findById(id).orElse(null));
         return taskRepository.findById(id).orElse(null);
     }
 
-    public Long save(TaskDto data) {
-        Task task = requestToTask(data);
-        return taskRepository.saveAndFlush(task).getId();
+    public Task update(TaskDto data) {
+        Task task = taskRepository.findById(data.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Задача не знайдена: " + data.getId()));
+
+        System.out.println(data);
+        taskMapper.updateTaskFromDto(data, task);
+
+        taskRepository.save(task);
+        System.out.println(task);
+
+        return task;
     }
+
+
 
     private Task requestToTask(TaskDto request) {
         Task task = new Task();
         JobType jobType = jobTypeRepository.findById(Long.valueOf(request.getJobType())).orElse(null);
         String regNumber = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyyHHmmss"));
         Status status = statusRepository.findById(1L).orElse(null);
-
+        if (request.getId() != null) task.setId(request.getId());
         task.setInvNumber(request.getInvNumber());
         task.setSerialNumber(request.getSerialNumber());
         task.setTitle(request.getTitle());

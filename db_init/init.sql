@@ -81,6 +81,7 @@ BEGIN
     IF NEW.delete_user IS NOT NULL THEN
         NEW.deleted_at := CURRENT_TIMESTAMP;
     END IF;
+    NEW.created_at := OLD.created_at;
     NEW.updated_at := CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
