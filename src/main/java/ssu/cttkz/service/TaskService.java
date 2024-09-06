@@ -78,9 +78,6 @@ public class TaskService {
         task.setExecutor(data.getExecutor());
         task.setComment(data.getComment());
 
-        System.out.println(data);
-        System.out.println(task);
-
         return task;
     }
 }

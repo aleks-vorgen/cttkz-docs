@@ -19,11 +19,13 @@ public class TaskController {
 
     @PostMapping("/task")
     public ResponseEntity<?> save(@RequestBody TaskDto task) {
+        System.out.println(task);
         return ResponseEntity.ok(taskService.save(task));
     }
 
-    @PutMapping("/task")
+    @PatchMapping("/task")
     public ResponseEntity<?> update(@RequestBody TaskDto task) {
+        System.out.println(task);
         return ResponseEntity.ok(taskService.update(task));
     }
 }
