@@ -6,8 +6,8 @@ import org.mapstruct.MappingTarget;
 import ssu.cttkz.dto.TaskDto;
 import ssu.cttkz.model.Task;
 
-@Mapper(componentModel = "spring", uses = {JobTypeMapper.class})
+//@Mapper(componentModel = "spring", uses = {JobTypeMapper.class})
 public interface TaskMapper {
-    @Mapping(source = "jobType", target = "jobType", qualifiedByName = "idToJobType")
-    void updateTaskFromDto(TaskDto dto, @MappingTarget Task entity);
+//    @Mapping(source = "jobType", target = "jobType", qualifiedByName = "idToJobType")
+//    void updateTaskFromDto(TaskDto dto, @MappingTarget Task entity);
 }

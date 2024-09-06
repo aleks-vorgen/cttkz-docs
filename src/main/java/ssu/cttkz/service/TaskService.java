@@ -1,11 +1,9 @@
 package ssu.cttkz.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ssu.cttkz.dto.TaskDto;
-import ssu.cttkz.service.mapstruct.TaskMapper;
 import ssu.cttkz.model.JobType;
 import ssu.cttkz.model.Status;
 import ssu.cttkz.model.Task;
@@ -19,14 +17,15 @@ import java.util.List;
 
 @Service
 public class TaskService {
-    @Autowired
-    private TaskRepository taskRepository;
-    @Autowired
-    private JobTypeRepository jobTypeRepository;
-    @Autowired
-    private StatusRepository statusRepository;
-    @Autowired
-    private TaskMapper taskMapper;
+    private final TaskRepository taskRepository;
+    private final JobTypeRepository jobTypeRepository;
+    private final StatusRepository statusRepository;
+
+    public TaskService(TaskRepository taskRepository, JobTypeRepository jobTypeRepository, StatusRepository statusRepository) {
+        this.taskRepository = taskRepository;
+        this.jobTypeRepository = jobTypeRepository;
+        this.statusRepository = statusRepository;
+    }
 
     public List<Task> getAll() {
         return taskRepository.findAll(Sort.by(Sort.Direction.ASC, "createdAt"));
@@ -35,56 +34,52 @@ public class TaskService {
     public Task save(TaskDto data) {
         Task task = requestToTask(data);
         Long id = taskRepository.saveAndFlush(task).getId();
-        System.out.println(taskRepository.findById(id).orElse(null));
         return taskRepository.findById(id).orElse(null);
     }
 
     public Task update(TaskDto data) {
-        Task task = taskRepository.findById(data.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Задача не знайдена: " + data.getId()));
-
-        System.out.println("DTO\n" + data);
-        System.out.println("Found task\n" + task);
-        taskMapper.updateTaskFromDto(data, task);
-
-        System.out.println("Edited task\n" + task);
-
-        Long id = taskRepository.saveAndFlush(task).getId();
-
-        Task savedTask = taskRepository.findById(id).orElse(null);
-
-        System.out.println("Saved task\n" + savedTask);
-
-        return savedTask;
+        Long id = taskRepository.saveAndFlush(requestToTask(data)).getId();
+        return taskRepository.findById(id).orElse(null);
     }
 
-    private Task editTask(TaskDto data, Task task) {
+    private Task requestToTask(TaskDto data) {
+        Task task;
         JobType jobType = jobTypeRepository.findById(data.getJobType()).orElseThrow(EntityNotFoundException::new);
-        //TODO доделать редактирование
+        Status status;
+        String regNumber;
 
-        return null;
-    }
+        if (data.getId() == null) {
+            task = new Task();
+            status = statusRepository.findById(1L).orElseThrow(EntityNotFoundException::new);
+            regNumber = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyyHHmmss"));
+            task.setRegNumber(regNumber);
+            task.setCreateUser(data.getCreateUser());
+            task.setCreatedAt(LocalDateTime.now());
+        }
+        else {
+            task = taskRepository.findById(data.getId()).orElseThrow(EntityNotFoundException::new);
+            status = statusRepository.findById(1L).orElseThrow(EntityNotFoundException::new);
+            task.setId(data.getId());
+            task.setUpdateReason(data.getUpdateReason());
+            task.setUpdateUser(data.getUpdateUser());
+            task.setUpdatedAt(LocalDateTime.now());
+            task.setDeleteReason(data.getDeleteReason());
+            task.setDeleteUser(data.getDeleteUser());
+        }
 
-
-
-    private Task requestToTask(TaskDto request) {
-        Task task = new Task();
-        JobType jobType = jobTypeRepository.findById(request.getJobType()).orElse(null);
-        String regNumber = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyyHHmmss"));
-        Status status = statusRepository.findById(1L).orElse(null);
-        if (request.getId() != null) task.setId(request.getId());
-        task.setInvNumber(request.getInvNumber());
-        task.setSerialNumber(request.getSerialNumber());
-        task.setTitle(request.getTitle());
-        task.setFullNameMVO(request.getFullNameMVO());
-        task.setDepartment(request.getDepartment());
-        task.setApplicationNumberOriginal(request.getApplicationNumberOriginal());
+        task.setInvNumber(data.getInvNumber());
+        task.setSerialNumber(data.getSerialNumber());
+        task.setTitle(data.getTitle());
+        task.setFullNameMVO(data.getFullNameMVO());
+        task.setDepartment(data.getDepartment());
+        task.setApplicationNumberOriginal(data.getApplicationNumberOriginal());
         task.setJobType(jobType);
-        task.setRegNumber(regNumber);
         task.setStatus(status);
-        task.setExecutor(request.getExecutor());
-        task.setComment(request.getComment());
-        task.setCreateUser(request.getCreateUser());
+        task.setExecutor(data.getExecutor());
+        task.setComment(data.getComment());
+
+        System.out.println(data);
+        System.out.println(task);
 
         return task;
     }
