@@ -43,20 +43,33 @@ public class TaskService {
         Task task = taskRepository.findById(data.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Задача не знайдена: " + data.getId()));
 
-        System.out.println(data);
+        System.out.println("DTO\n" + data);
+        System.out.println("Found task\n" + task);
         taskMapper.updateTaskFromDto(data, task);
 
-        taskRepository.save(task);
-        System.out.println(task);
+        System.out.println("Edited task\n" + task);
 
-        return task;
+        Long id = taskRepository.saveAndFlush(task).getId();
+
+        Task savedTask = taskRepository.findById(id).orElse(null);
+
+        System.out.println("Saved task\n" + savedTask);
+
+        return savedTask;
+    }
+
+    private Task editTask(TaskDto data, Task task) {
+        JobType jobType = jobTypeRepository.findById(data.getJobType()).orElseThrow(EntityNotFoundException::new);
+        //TODO доделать редактирование
+
+        return null;
     }
 
 
 
     private Task requestToTask(TaskDto request) {
         Task task = new Task();
-        JobType jobType = jobTypeRepository.findById(Long.valueOf(request.getJobType())).orElse(null);
+        JobType jobType = jobTypeRepository.findById(request.getJobType()).orElse(null);
         String regNumber = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyyHHmmss"));
         Status status = statusRepository.findById(1L).orElse(null);
         if (request.getId() != null) task.setId(request.getId());

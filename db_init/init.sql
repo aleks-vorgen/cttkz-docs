@@ -68,7 +68,7 @@ CREATE TABLE tasks
 CREATE FUNCTION tasks_before_insert() RETURNS trigger AS
 $tasks_before_insert$
 BEGIN
-    NEW.reg_number := to_char(CURRENT_TIMESTAMP, 'DDMMYYYYHH24MISS');
+    NEW.reg_number := to_char(CURRENT_TIMESTAMP, 'YYYYMMDDHH24MISS');
     NEW.status_id := 1;
     NEW.created_at := CURRENT_TIMESTAMP;
     RETURN NEW;

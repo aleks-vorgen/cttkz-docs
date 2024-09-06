@@ -15,14 +15,17 @@ public class TaskDto {
     private String fullNameMVO;
     private String department; //TODO заменить на модель Department
     private String applicationNumberOriginal;
-    private String jobType;
-    private String regNumber;
+    private Long jobType;
+    private Long status;
     private String executor; //TODO заменить на модель User
     private String comment;
-    private String status;
-    private String createdAt;
     private String createUser; //TODO заменить на модель User
-    private String updatedAt;
     private String updateReason;
     private String updateUser; //TODO заменить на модель User
+
+    private String regNumber;
+    private String createdAt;
+    private String updatedAt;
+    private String deleteReason;
+    private String deleteUser;
 }
