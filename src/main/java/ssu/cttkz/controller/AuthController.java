@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ssu.cttkz.authentication.JWT.JWTTokenProvider;
+import ssu.cttkz.authentication.LdapUtils;
 import ssu.cttkz.dto.AuthRequest;
+
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/auth")
@@ -37,6 +40,12 @@ public class AuthController {
         }
 
         String jwt = jwtTokenProvider.createToken(request.getUsername(), authentication.getAuthorities());
-        return ResponseEntity.ok(jwt);
+        HashMap<String, String> response = new HashMap<>();
+        response.put("token", jwt);
+        response.put("username", jwtTokenProvider.getUsername(jwt));
+        response.put("fullname", LdapUtils.getFullName());
+        response.put("department", LdapUtils.getDepartment());
+
+        return ResponseEntity.ok(response);
     }
 }

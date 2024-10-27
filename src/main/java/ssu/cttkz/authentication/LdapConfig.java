@@ -21,7 +21,7 @@ public class LdapConfig {
         provider.setConvertSubErrorCodesToExceptions(true);
         provider.setUseAuthenticationRequestCredentials(true);
 
-        if (userSearchFilter != null && userSearchFilter.trim().length() > 0) {
+        if (userSearchFilter != null && !userSearchFilter.trim().isEmpty()) {
             provider.setSearchFilter(userSearchFilter);
         }
         return provider;

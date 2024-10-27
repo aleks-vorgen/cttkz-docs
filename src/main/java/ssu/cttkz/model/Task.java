@@ -1,17 +1,21 @@
 package ssu.cttkz.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Set;
 
 @Entity
 @Table(name = "tasks")
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode
 public class Task implements Serializable {
 
     @Id
@@ -36,8 +40,9 @@ public class Task implements Serializable {
     @Column(name = "application_number_original", nullable = false)
     private String applicationNumberOriginal;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne()
     @JoinColumn(name = "job_type_id", nullable = false)
+    @JsonManagedReference
     private JobType jobType;
 
     @Column(name = "reg_number")
@@ -49,9 +54,13 @@ public class Task implements Serializable {
     @Column(name = "comment")
     private String comment;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne()
     @JoinColumn(name = "status_id")
+    @JsonManagedReference
     private Status status;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private Set<TaskHistory> history;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -67,15 +76,6 @@ public class Task implements Serializable {
 
     @Column(name = "update_user")
     private String updateUser; //TODO заменить на модель User
-
-    @Column(name = "deleted_at")
-    private Timestamp deletedAt;
-
-    @Column(name = "delete_reason")
-    private String deleteReason;
-
-    @Column(name = "delete_user")
-    private String deleteUser; //TODO заменить на модель User
 
     @PrePersist
     protected void onCreate() {

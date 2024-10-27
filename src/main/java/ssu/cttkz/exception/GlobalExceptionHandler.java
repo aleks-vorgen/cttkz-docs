@@ -11,6 +11,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<AppError> dataIntegrityViolationException(DataIntegrityViolationException e) {
-        return new ResponseEntity<>(new AppError(HttpStatus.CONFLICT.value(), "Дублювання номеру службової записки"), HttpStatus.CONFLICT);
+        return new ResponseEntity<>(new AppError(HttpStatus.CONFLICT.value(), e.getMessage()), HttpStatus.CONFLICT);
     }
 }

@@ -44,8 +44,6 @@ public class JWTTokenProvider {
                 .signWith(secretKey)
                 .compact();
 
-        System.out.println("createToken method returned: " + jwt); //TODO для теста
-
         return jwt;
     }
 
