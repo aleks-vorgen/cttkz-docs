@@ -17,4 +17,8 @@ public class TaskHistoryService {
     public Set<TaskHistory> findAllByTaskId(Long id) {
         return taskHistoryRepository.findAllByTaskId(id);
     }
+
+    public TaskHistory save(TaskHistory taskHistory) {
+        return taskHistoryRepository.save(taskHistory);
+    }
 }

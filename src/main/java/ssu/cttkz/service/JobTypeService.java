@@ -1,5 +1,6 @@
 package ssu.cttkz.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -20,5 +21,9 @@ public class JobTypeService {
 
     public List<JobType> getAllWithTasks() {
         return jobTypeRepository.findAllWithTasks();
+    }
+
+    public JobType getById(Long id) {
+        return jobTypeRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 }

@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Table(name = "task_history")
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode
 public class TaskHistory implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

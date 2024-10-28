@@ -1,5 +1,6 @@
 package ssu.cttkz.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,9 @@ public class StatusService {
 
     public List<Status> getAll() {
         return statusRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+    }
+    public Status getById(Long id) {
+        return statusRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
 }

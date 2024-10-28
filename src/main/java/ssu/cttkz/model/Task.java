@@ -2,9 +2,7 @@ package ssu.cttkz.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -13,9 +11,9 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tasks")
-@Data
-@NoArgsConstructor
-@EqualsAndHashCode
+@Getter
+@Setter
+@RequiredArgsConstructor
 public class Task implements Serializable {
 
     @Id
@@ -34,8 +32,9 @@ public class Task implements Serializable {
     @Column(name = "fullname_mvo", nullable = false)
     private String fullNameMVO;
 
-    @Column(name = "department", nullable = false)
-    private String department; //TODO заменить на модель Department
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department; //TODO заменить на модель Department
 
     @Column(name = "application_number_original", nullable = false)
     private String applicationNumberOriginal;
@@ -48,8 +47,9 @@ public class Task implements Serializable {
     @Column(name = "reg_number")
     private String regNumber;
 
-    @Column(name = "executor", nullable = false)
-    private String executor; //TODO заменить на модель User
+    @ManyToOne
+    @JoinColumn(name = "executor_id")
+    private User executor; //TODO заменить на модель User
 
     @Column(name = "comment")
     private String comment;
@@ -65,8 +65,9 @@ public class Task implements Serializable {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "create_user", nullable = false)
-    private String createUser; //TODO заменить на модель User
+    @ManyToOne
+    @JoinColumn(name = "created_user_id")
+    private User createdUser; //TODO заменить на модель User
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
@@ -74,8 +75,9 @@ public class Task implements Serializable {
     @Column(name = "update_reason")
     private String updateReason;
 
-    @Column(name = "update_user")
-    private String updateUser; //TODO заменить на модель User
+    @ManyToOne
+    @JoinColumn(name = "updated_user_id")
+    private User updatedUser; //TODO заменить на модель User
 
     @PrePersist
     protected void onCreate() {

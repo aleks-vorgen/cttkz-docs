@@ -15,17 +15,28 @@ import org.springframework.web.bind.annotation.RestController;
 import ssu.cttkz.authentication.JWT.JWTTokenProvider;
 import ssu.cttkz.authentication.LdapUtils;
 import ssu.cttkz.dto.AuthRequest;
+import ssu.cttkz.model.Department;
+import ssu.cttkz.model.User;
+import ssu.cttkz.service.DepartmentService;
+import ssu.cttkz.service.UserService;
 
 import java.util.HashMap;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+    private final JWTTokenProvider jwtTokenProvider;
+    private final UserService userService;
+    private final DepartmentService departmentService;
 
     @Autowired
-    private JWTTokenProvider jwtTokenProvider;
+    public AuthController(AuthenticationManager authenticationManager, JWTTokenProvider jwtTokenProvider, UserService userService, DepartmentService departmentService) {
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.userService = userService;
+        this.departmentService = departmentService;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody AuthRequest request) {
@@ -35,6 +46,18 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (userService.findByUsername(request.getUsername()) == null) {
+                User newUser = new User();
+                newUser.setUsername(request.getUsername());
+                newUser.setFullname(LdapUtils.getFullName());
+                if (departmentService.findByTitle(LdapUtils.getDepartment()) == null) {
+                    Department newDepartment = new Department();
+                    newDepartment.setTitle(LdapUtils.getDepartment());
+                    Department savedDepartment = departmentService.save(newDepartment);
+                    newUser.setDepartment(savedDepartment);
+                    userService.save(newUser);
+                }
+            }
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -48,4 +71,15 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
+
+//    @PostMapping("/checklogin")
+//    public ResponseEntity<?> checkAuthentication(@RequestBody String token) {
+//        JWTTokenProvider provider = new JWTTokenProvider();
+//        try {
+//            provider.validateToken(token);
+//            return ResponseEntity.status(HttpStatus.OK).build();
+//        } catch (JwtException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }
+//    }
 }

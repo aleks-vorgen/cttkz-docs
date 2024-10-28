@@ -8,6 +8,9 @@ DROP SEQUENCE IF EXISTS tasks_id_seq;
 DROP TABLE IF EXISTS task_history CASCADE;
 DROP SEQUENCE IF EXISTS task_history_id_seq;
 
+DROP TABLE IF EXISTS list_tasks;
+DROP SEQUENCE IF EXISTS list_tasks_id_seq;
+
 DROP TABLE IF EXISTS job_types;
 DROP SEQUENCE IF EXISTS job_types_id_seq;
 
@@ -17,20 +20,29 @@ DROP SEQUENCE IF EXISTS statuses_id_seq;
 DROP TABLE IF EXISTS users;
 DROP SEQUENCE IF EXISTS users_id_seq;
 
+DROP TABLE IF EXISTS departments;
+DROP SEQUENCE IF EXISTS departments_id_seq;
+
 CREATE TABLE job_types
 (
     id    bigserial PRIMARY KEY,
     title varchar(100) UNIQUE NOT NULL
 );
 
+CREATE TABLE departments
+(
+    id    bigserial PRIMARY KEY,
+    code  text UNIQUE NOT NULL,
+    title text UNIQUE NOT NULL
+);
+
 CREATE TABLE users
 (
-    id      text PRIMARY KEY,
-    name    text        NOT NULL,
-    userpic text        NOT NULL,
-    email   text        NOT NULL,
-    gender  varchar(10) NOT NULL,
-    locale  text        NOT NULL
+    id            bigserial PRIMARY KEY,
+    username      text UNIQUE NOT NULL,
+    fullname      text        NOT NULL,
+    department_id bigint      NOT NULL,
+    FOREIGN KEY (department_id) REFERENCES departments (id)
 );
 
 CREATE TABLE statuses
@@ -42,25 +54,28 @@ CREATE TABLE statuses
 CREATE TABLE tasks
 (
     id                          bigserial PRIMARY KEY,
-    inv_number                  text        NOT NULL, --Инвентарник
-    serial_number               text        NOT NULL, --Серийник
-    title                       text        NOT NULL, --Наименование товара
-    fullName_MVO                text        NOT NULL, --Изменится на FK к users
-    department                  text        NOT NULL, --Возможно изменится на FK к departments
-    application_number_original text UNIQUE NOT NULL, --Номер служебки оригинальный
-    reg_number                  text UNIQUE,          --Рег номер для поиска
-    executor                    text        NOT NULL, --Изменится на FK к users
-    comment                     text,                 --Комментарий
-    job_type_id                 bigint      NOT NULL, --FK на jobTypes (тип работы)
-    status_id                   bigint,               --FK на statuses (статус задачи)
-    created_at                  timestamp(0),         --Когда создано
-    create_user                 text        NOT NULL, --Кем создано
-    update_user                 text,                 -- Пользователь, который редактировал
-    updated_at                  timestamp(0),         -- Время редактирования
-    update_reason               text,                 -- Причина редактирования
+    inv_number                  text        NOT NULL, -- Інвентарний номер обладнання
+    serial_number               text        NOT NULL, -- Серійний номер обладнання
+    title                       text        NOT NULL, -- Назва задачі
+    fullName_MVO                text        NOT NULL, -- МВО
+    department_id               bigint      NOT NULL, -- Підрозділ
+    application_number_original text UNIQUE NOT NULL, -- Номер службової записки (Особистий кабінет/паперовий документ)
+    reg_number                  text UNIQUE,          -- Реєстраційний номер (для пошуку)
+    executor_id                 bigint      NOT NULL, -- Кому призначено
+    comment                     text,                 -- Коментар
+    job_type_id                 bigint      NOT NULL, -- Тип роботи
+    status_id                   bigint,               -- Статус задачі
+    created_at                  timestamp(0),         -- Коли створено
+    created_user_id             bigint      NOT NULL, -- Ким створено
+    updated_user_id             bigint,               -- Ким редаговано
+    updated_at                  timestamp(0),         -- Коли редаговано
+    update_reason               text,                 -- Причина редагування
+    FOREIGN KEY (department_id) REFERENCES departments (id),
+    FOREIGN KEY (executor_id) REFERENCES users (id),
     FOREIGN KEY (job_type_id) REFERENCES job_types (id),
-    FOREIGN KEY (status_id) REFERENCES statuses (id)
-    --FOREIGN KEY (create_user) REFERENCES users (id),
+    FOREIGN KEY (status_id) REFERENCES statuses (id),
+    FOREIGN KEY (created_user_id) REFERENCES users (id),
+    FOREIGN KEY (updated_user_id) REFERENCES users (id)
 );
 
 CREATE TABLE list_tasks --Отношение задач к пользователям
