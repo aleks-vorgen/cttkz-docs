@@ -28,7 +28,8 @@ VALUES ('Призначено'),
        ('Отримано МВО');
 
 INSERT INTO departments(code, title)
-VALUES ('test.code', 'test title');
+VALUES ('test.code', 'test title'),
+       ('test2 code', 'test2 title');
 
 INSERT INTO users(username, fullname, department_id)
 VALUES ('o.kulykov', 'Куликов Олексій Олександрович', 1);

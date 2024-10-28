@@ -64,6 +64,11 @@ public class TaskService {
         return task;
     }
 
+    public List<Task> search(String title) {
+        System.out.println(taskRepository.findByTitleContainingIgnoreCase(title));
+        return taskRepository.findByTitleContainingIgnoreCase(title);
+    }
+
     private void fetchWithHistory(Task task) {
         Set<TaskHistory> history = taskHistoryService.findAllByTaskId(task.getId());
         history.iterator().forEachRemaining(e -> e.setTask(null));
@@ -81,7 +86,7 @@ public class TaskService {
             status = statusService.getById(1L);
             regNumber = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyyHHmmss"));
             task.setRegNumber(regNumber);
-            task.setCreatedUser(userService.findByUsername(data.getCreateUser()));
+            task.setCreatedUser(userService.findByUsername(data.getCreatedUser()));
             task.setCreatedAt(LocalDateTime.now());
         } else { //if updating
             task = taskRepository.findById(data.getId()).orElseThrow(EntityNotFoundException::new);
@@ -89,13 +94,13 @@ public class TaskService {
 
             task.setId(data.getId());
             task.setUpdateReason(data.getUpdateReason());
-            task.setUpdatedUser(userService.findByUsername(data.getUpdateUser()));
+            task.setUpdatedUser(userService.findByUsername(data.getUpdatedUser()));
             task.setUpdatedAt(LocalDateTime.now());
 
             TaskHistory taskHistory = new TaskHistory();
             taskHistory.setTask(task);
             taskHistory.setUpdatedAt(LocalDateTime.now());
-            taskHistory.setUpdateUser(data.getUpdateUser());
+            taskHistory.setUpdatedUser(userService.findByUsername(data.getUpdatedUser()));
             taskHistory.setUpdateReason(data.getUpdateReason());
 
             taskHistoryService.save(taskHistory);
@@ -105,11 +110,11 @@ public class TaskService {
         task.setSerialNumber(data.getSerialNumber());
         task.setTitle(data.getTitle());
         task.setFullNameMVO(data.getFullNameMVO());
-        task.setDepartment(departmentService.findByTitle(data.getDepartment()));
+        task.setDepartment(departmentService.findById(data.getDepartment()));
         task.setApplicationNumberOriginal(data.getApplicationNumberOriginal());
         task.setJobType(jobType);
         task.setStatus(status);
-        task.setExecutor(userService.findByUsername(data.getExecutor()));
+        task.setExecutor(userService.findById(data.getExecutor()));
         task.setComment(data.getComment());
 
         return task;

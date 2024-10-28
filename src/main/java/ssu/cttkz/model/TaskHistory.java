@@ -2,7 +2,6 @@ package ssu.cttkz.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -21,8 +20,9 @@ public class TaskHistory implements Serializable {
     @JoinColumn(name = "task_id", nullable = false)
     private Task task;
 
-    @Column(name = "update_user", nullable = false)
-    private String updateUser;
+    @ManyToOne
+    @JoinColumn(name = "updated_user_id")
+    private User updatedUser;
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;

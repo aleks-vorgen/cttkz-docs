@@ -88,11 +88,11 @@ CREATE TABLE list_tasks --Отношение задач к пользовате�
 
 CREATE TABLE task_history
 (
-    id            bigserial PRIMARY KEY,
-    task_id       bigint       NOT NULL, -- Ссылка на исходную задачу
-    update_user   text         NOT NULL, -- Пользователь, который редактировал
-    updated_at    timestamp(0) NOT NULL, -- Время редактирования
-    update_reason text,                  -- Причина редактирования
+    id              bigserial PRIMARY KEY,
+    task_id         bigint       NOT NULL, -- Ссылка на исходную задачу
+    updated_user_id bigint       NOT NULL, -- Пользователь, который редактировал
+    updated_at      timestamp(0) NOT NULL, -- Время редактирования
+    update_reason   text,                  -- Причина редактирования
     FOREIGN KEY (task_id) REFERENCES tasks (id)
 );
 
